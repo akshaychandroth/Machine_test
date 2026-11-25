@@ -48,5 +48,5 @@ services:
         jobmanager.rpc.address: jobmanager
         rest.address: jobmanager
     volumes:
-      - ./submissions.sql:/opt/flink/sql/submissions.sql:ro
+      - ./aggregation.sql:/opt/flink/sql/aggregation.sql:ro
     command: sleep infinity
