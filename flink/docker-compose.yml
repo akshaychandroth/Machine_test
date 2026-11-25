@@ -1,0 +1,52 @@
+
+services:
+  jobmanager:
+    build: .
+    image: submission-flink:1.20.3
+    container_name: flink-jobmanager
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    env_file:
+      - ../.env
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        execution.checkpointing.interval: 10000
+        state.checkpoints.dir: file:///opt/flink/checkpoints
+    volumes:
+      - ./checkpoints:/opt/flink/checkpoints
+
+  taskmanager:
+    build: .
+    image: submission-flink:1.20.3
+    container_name: flink-taskmanager
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    env_file:
+      - ../.env
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        state.checkpoints.dir: file:///opt/flink/checkpoints
+    volumes:
+      - ./checkpoints:/opt/flink/checkpoints
+
+  sql-client:
+    build: .
+    image: submission-flink:1.20.3
+    container_name: flink-sql-client
+    depends_on:
+      - jobmanager
+      - taskmanager
+    env_file:
+      - ../.env
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        rest.address: jobmanager
+    volumes:
+      - ./submissions.sql:/opt/flink/sql/submissions.sql:ro
+    command: sleep infinity

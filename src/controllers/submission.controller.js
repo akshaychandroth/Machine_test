@@ -2,6 +2,7 @@ import {
   createSubmission,
   getSubmissions,
 } from "../services/submission.service.js";
+import validator from "validator";
 
 export const submitForm = async (req, res, next) => {
   try {
